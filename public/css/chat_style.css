@@ -145,7 +145,7 @@ html {
 .msger-send-btn:hover {
   background: rgb(0, 180, 50);
 }
-.msger-reset-btn{
+.msger-options-btn{
   cursor: pointer;
   background: blue;
   color: white;

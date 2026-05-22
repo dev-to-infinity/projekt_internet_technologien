@@ -8,7 +8,6 @@
         <link rel="stylesheet" href="../css/body_&_header.css">
         <link href="../css/chat_style.css" rel="stylesheet" id="bootstrap-css">
         <script src="./js/jquery.js"></script>
-        <script src="../js/script.js" defer></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
@@ -27,17 +26,17 @@
             </div>
         </header>
 
-        <p>Here goes anything you want above the chat</p>
         
-        <div id="chat_container">
+        <div id="chat_container">                    <!-- This is a template from the second given website -->
             <section class="msger">
             <div class="msger-header">
                 <div class="msger-header-title">
                 <i class="fas fa-comment-alt"></i> SalesBot
                 </div>
-                <div class="msger-header-options">
+                <div class="msger-header-options">    <!-- Explicitly giving the opportunity for own options is so cool holy -->
                 <span><i class="fas fa-cog"></i>
-                <button type="button" class="msger-reset-btn">reset</button>
+                <button type="button" class="msger-options-btn">reset</button>
+                <button type="button" class="msger-options-btn">save</button>
                 </span>
                 </div>
             </div>
@@ -48,7 +47,7 @@
 
                 <div class="msg-bubble">
                     <div class="msg-info">
-                    <div class="msg-info-name">BOT</div>
+                    <div class="msg-info-name">SalesBot</div>
                     <div class="msg-info-time">12:45</div>
                     </div>
 
@@ -63,7 +62,7 @@
 
                 <div class="msg-bubble">
                     <div class="msg-info">
-                    <div class="msg-info-name">Sajad</div>
+                    <div class="msg-info-name">CustomerName</div>
                     <div class="msg-info-time">12:46</div>
                     </div>
 
@@ -79,7 +78,7 @@
                 <input type="text" class="msger-input" placeholder="Enter your message...">
                 <button type="submit" class="msger-send-btn">Send</button>
             </form>
-            <!--<script src="./js/socket.js"></script>-->
+            <script src="../js/client.js"></script>
         </section>
         </div>
 
