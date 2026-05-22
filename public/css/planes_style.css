@@ -29,6 +29,25 @@
     flex-direction: column;
     gap: 4px;
     flex: 1 1 400px;
-    font-size: 2rem;
+    font-size: 3ex;
     text-align: center;
+}
+
+ul {
+    padding: 10px;
+    list-style-type: none;
+    margin: 0;
+}
+
+li {
+    display: flex;
+    justify-content: space-between;
+    border-radius: 5px;
+    padding: 15px;
+    margin: 5px 0px;
+    font-size: 1.5rem;
+    color: white;
+    border: 1px solid black;
+    box-sizing: border-box;
+    height: 200px;
 }

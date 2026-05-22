@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Home | EasyAir</title>
+        <link rel="stylesheet" href="../css/flights_style.css">
+        <link rel="stylesheet" href="../css/body_&_header.css">
+        <link href="../css/chat_style.css" rel="stylesheet" id="bootstrap-css">
+        <script src="./js/jquery.js"></script>
+        <script src="../js/script.js" defer></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
+    </head>
+
+    <body>
+        <header>
+            <div>
+                <h1 id="logo">EasyAir</h1>
+                <nav>
+                    <a href="index.html">Home</a>
+                    <a href="planes.html">Planes</a>
+                    <a href="orders.html">Orders</a>
+                </nav>
+                <p id="montenegro_airport">Montenegro Airport</p>
+            </div>
+        </header>
+
+        <p>Here goes anything you want above the chat</p>
+        
+        <div id="chat_container">
+            <section class="msger">
+            <div class="msger-header">
+                <div class="msger-header-title">
+                <i class="fas fa-comment-alt"></i> SalesBot
+                </div>
+                <div class="msger-header-options">
+                <span><i class="fas fa-cog"></i>
+                <button type="button" class="msger-reset-btn">reset</button>
+                </span>
+                </div>
+            </div>
+
+            <main class="msger-chat">
+                <div class="msg left-msg">
+                <div class="msg-img" style="background-image: url(../img/customer-service.webp)"></div>
+
+                <div class="msg-bubble">
+                    <div class="msg-info">
+                    <div class="msg-info-name">BOT</div>
+                    <div class="msg-info-time">12:45</div>
+                    </div>
+
+                    <div class="msg-text">
+                    Hi, welcome to SimpleChat! Go ahead and send me a message. 😄
+                    </div>
+                </div>
+                </div>
+
+                <div class="msg right-msg">
+                <div class="msg-img" style="background-image: url(../img/user-pfp.jpeg)"></div>
+
+                <div class="msg-bubble">
+                    <div class="msg-info">
+                    <div class="msg-info-name">Sajad</div>
+                    <div class="msg-info-time">12:46</div>
+                    </div>
+
+                    <div class="msg-text">
+                    You can change your name in JS section!
+                    </div>
+                </div>
+                </div>
+
+            </main>
+
+            <form class="msger-inputarea">
+                <input type="text" class="msger-input" placeholder="Enter your message...">
+                <button type="submit" class="msger-send-btn">Send</button>
+            </form>
+            <!--<script src="./js/socket.js"></script>-->
+        </section>
+        </div>
+
+
+    </body>
+</html>
