@@ -1,14 +1,21 @@
-var bot = require('./bot.js')
+var salesBot = require('./salesBot')
 var express = require('express')
 var http = require('http')
 var WSS = require('websocket').server
 
+try {
+    require('Node:fs')
+    console.log("hell yeah")
+} catch (err) {console.log("shiii")}
+
+var curMsgHistory = [null]                //Because it should not automatically be saved, or when any user clicks save, but when the SPECIFIC user clicks save; null element for bot
+
 var saveData = 
 {
-    "lowestFreeUID": 1,
+    "length": 1,
     "users": 
     [
-        {"name": "Megabot", "connection": null}
+        {"name": "SalesBot", "connection": null}
     ] 
 }
 
@@ -16,6 +23,8 @@ try {
     var save = fs.readFileSync('C:/serversideSaveFile', 'utf8')
     saveData = JSON.parse(save)
 } catch (err) {}
+
+for(var i = 1; i < saveData.users.length; i++) curMsgHistory.push(user.msgHistory)
 
 var app = express()
 app.use(express.static('public'))
@@ -25,7 +34,7 @@ app.use('/css', express.static(__dirname + './public/css'))
 app.use('/js', express.static(__dirname + './public/js'))
 app.use('/img', express.static(__dirname + './public/img'))
 
-var webserver = app.listen(8081, () => {                                     //you dont need the extra http server the prof used in his example cuz staticExpress uses one automatically!
+var webserver = app.listen(8081, () => { 
   var address = webserver.address()
   console.log(address)
   console.log('Server started at http://localhost:8081')
@@ -36,15 +45,50 @@ var wss = new WSS({
   autoAcceptConnections: false
 })
 
-var salesBot = new bot()
+var mySalesBot = new salesBot()
 var connections = {}
 
 wss.on('request', function (request) {
     var connection = request.accept('chat', request.origin)
+    console.log(1)
+    var name = null
 
     connection.on('message', function (message) {
-        var data = JSON.parse(message.utf8Data)
+        console.log(2)
+        var msgData = JSON.parse(message.utf8Data)
+        console.log(msgData)
+        switch(msgData.option) {
+            case "userJoin":
+                console.log(4)
+                connection.send('{"option": "test"}')
+                console.log(5)
+                
+                saveData.users[saveData.length] = {"name": name, "msgHistory": []}
+                saveData.length++
+                curMsgHistory.push([1])
+                //Bot must be spoken to from here
+                
 
-        if(data.neu === true) {}
+                break;
+
+            case "botJoin":
+                break;
+            
+            case "userMsg":
+                break;
+            
+            case "botAnswer":
+                break;
+
+            case "reset":
+                break;
+            
+            case "save":
+                break;
+        }
+
+        if (mySalesBot.connected === false) {
+            mySalesBot.connect()
+        }
     })
 })

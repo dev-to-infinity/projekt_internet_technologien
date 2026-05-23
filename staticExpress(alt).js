@@ -1,9 +1,12 @@
 /* Pakete die wir brauchen */
 
-var bot = require('./bot(alt).js')
+var bot = require('./bot.js')
 var express = require('express')
 
 var app = express()
+
+/* Nutzen einer statischen WebSeite
+*/
 app.use(express.static('public'))
 
 // Wir nutzen ein paar statische Ressourcen
@@ -23,7 +26,7 @@ var WSS = require('websocket').server
 var http = require('http')
 
 var server = http.createServer()
-server.listen(8181)
+server.listen(8181)               //Ich schätze mal der hier ist 100% unnötig? Weil stattdessen einfach die app verwenden? Die baut ja automatisch auf einen http server auf; der Prof wusste das halt selber safe nicht
 
 // Hier erstellen wir den Server
 var wss = new WSS({
@@ -41,7 +44,7 @@ var connections = {}
 wss.on('request', function (request) {
   var connection = request.accept('chat', request.origin)
 
-  connection.on('message', function (message) {
+  connection.on('message', function (message) {        //hier bin ich bro
     var name = ''
 
     for (var key in connections) {
@@ -77,7 +80,7 @@ wss.on('request', function (request) {
         break
     }
 
-    //Sende Daten an alle verbundenen Sockets
+    //Sende Daten an alle verbundenen Sockets                      Natürlich auch Teil der Logik
     for (var key in connections) {
       if (connections[key] && connections[key].send) {
         connections[key].send(msg)

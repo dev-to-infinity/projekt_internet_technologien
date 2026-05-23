@@ -8,6 +8,7 @@
         <link rel="stylesheet" href="../css/body_&_header.css">
         <link href="../css/chat_style.css" rel="stylesheet" id="bootstrap-css">
         <script src="./js/jquery.js"></script>
+        <script type="module" src="msgPrinter"></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
@@ -18,7 +19,7 @@
             <div>
                 <h1 id="logo">EasyAir</h1>
                 <nav>
-                    <a href="index.html">Home</a>
+                    <a href="../index.html">Home</a>
                     <a href="planes.html">Planes</a>
                     <a href="orders.html">Orders</a>
                 </nav>
@@ -41,7 +42,7 @@
                 </div>
             </div>
 
-            <main class="msger-chat">
+            <main id="msger-chat">
                 <div class="msg left-msg">
                 <div class="msg-img" style="background-image: url(../img/customer-service.webp)"></div>
 
@@ -52,31 +53,16 @@
                     </div>
 
                     <div class="msg-text">
-                    Hi, welcome to SimpleChat! Go ahead and send me a message. 😄
+                    Welcome! To start, please choose a username that I can remember u by.
+                    Or remind me of who you are if we talked before!
                     </div>
                 </div>
                 </div>
-
-                <div class="msg right-msg">
-                <div class="msg-img" style="background-image: url(../img/user-pfp.jpeg)"></div>
-
-                <div class="msg-bubble">
-                    <div class="msg-info">
-                    <div class="msg-info-name">CustomerName</div>
-                    <div class="msg-info-time">12:46</div>
-                    </div>
-
-                    <div class="msg-text">
-                    You can change your name in JS section!
-                    </div>
-                </div>
-                </div>
-
             </main>
 
             <form class="msger-inputarea">
-                <input type="text" class="msger-input" placeholder="Enter your message...">
-                <button type="submit" class="msger-send-btn">Send</button>
+                <input type="text" id="msger-input" placeholder="Enter your message...">
+                <button type="submit" id="msger-send-btn">Send</button>
             </form>
             <script src="../js/client.js"></script>
         </section>

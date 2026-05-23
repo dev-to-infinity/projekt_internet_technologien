@@ -72,7 +72,7 @@ class bot {
        * Hier senden wir unsere Kennung damit der Server uns erkennt.
        * Wir formatieren die Kennung als JSON
       */
-      function joinGesp () {
+      function joinGesp () {                           //This is part of the logic, create your own!!
         if (connection.connected) {
           connection.sendUTF('{"type": "join", "name":"MegaBot"}')
           var inhalt= "Lass uns über Blödsinn sprechen? Was machst du falsch?"
@@ -89,7 +89,7 @@ class bot {
    * Methode um sich mit dem Server zu verbinden. Achtung wir nutzen localhost
    * 
    */
-  connect () {
+  connect () {                      //importante massivo
     this.client.connect('ws://localhost:8181/', 'chat')
     this.connected = true
   }

@@ -50,18 +50,18 @@ html {
   color: #666;
 }
 
-.msger-chat {
+#msger-chat {
   flex: 1;
   overflow-y: auto;
   padding: 10px;
 }
-.msger-chat::-webkit-scrollbar {
+#msger-chat::-webkit-scrollbar {
   width: 6px;
 }
-.msger-chat::-webkit-scrollbar-track {
+#msger-chat::-webkit-scrollbar-track {
   background: #ddd;
 }
-.msger-chat::-webkit-scrollbar-thumb {
+#msger-chat::-webkit-scrollbar-thumb {
   background: #bdbdbd;
 }
 .msg {
@@ -130,11 +130,11 @@ html {
   border-radius: 3px;
   font-size: 1em;
 }
-.msger-input {
+#msger-input {
   flex: 1;
   background: #ddd;
 }
-.msger-send-btn {
+#msger-send-btn {
   margin-left: 10px;
   background: rgb(0, 196, 65);
   color: #fff;
@@ -142,7 +142,7 @@ html {
   cursor: pointer;
   transition: background 0.23s;
 }
-.msger-send-btn:hover {
+#msger-send-btn:hover {
   background: rgb(0, 180, 50);
 }
 .msger-options-btn{
