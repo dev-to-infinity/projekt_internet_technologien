@@ -50,18 +50,13 @@ var connections = {}
 
 wss.on('request', function (request) {
     var connection = request.accept('chat', request.origin)
-    console.log(1)
     var name = null
 
     connection.on('message', function (message) {
-        console.log(2)
         var msgData = JSON.parse(message.utf8Data)
-        console.log(msgData)
         switch(msgData.option) {
             case "userJoin":
-                console.log(4)
                 connection.send('{"option": "test"}')
-                console.log(5)
                 
                 saveData.users[saveData.length] = {"name": name, "msgHistory": []}
                 saveData.length++
