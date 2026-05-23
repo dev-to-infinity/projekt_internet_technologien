@@ -77,6 +77,6 @@ class msgPrinter {
     }
 
     right(name, msg, timestamp) {
-        this.msger_chat.append(this.createMsg("right", name, "../img/user-pfp.jpeg", msg, timestamp))
+        this.msger_chat.innerHTML += (this.createMsg("right", name, "../img/user-pfp.jpeg", msg, timestamp))
     }
 }
