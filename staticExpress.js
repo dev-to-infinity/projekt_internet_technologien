@@ -3,20 +3,18 @@ var express = require('express')
 var http = require('http')
 var WSS = require('websocket').server
 
+var firstMsg = "Welcome! To start, please choose a username that I can remember u by. Or remind me of who you are if we talked before!"
+
 try {
     require('Node:fs')
     console.log("hell yeah")
 } catch (err) {console.log("shiii")}
 
-var curMsgHistory = [null]                //Because it should not automatically be saved, or when any user clicks save, but when the SPECIFIC user clicks save; null element for bot
+var curHistory = []                //Because it should not automatically be saved, or when any user clicks save, but when the SPECIFIC user clicks save; null element for bot
 
 var saveData = 
 {
-    "length": 1,
-    "users": 
-    [
-        {"name": "SalesBot", "connection": null}
-    ] 
+    "users": []
 }
 
 try {
@@ -40,6 +38,8 @@ var webserver = app.listen(8081, () => {
   console.log('Server started at http://localhost:8081')
 })
 
+var arr = []
+
 var wss = new WSS({
   httpServer: webserver,
   autoAcceptConnections: false
@@ -48,21 +48,24 @@ var wss = new WSS({
 var mySalesBot = new salesBot()
 var connections = {}
 
-wss.on('request', function (request) {
+wss.on('request', function (request) {                      //Dont base your logic on the connection! It doesn't survive over multiple sessions and the entire block exists separately for each request/user including the bot!
     var connection = request.accept('chat', request.origin)
     var name = null
 
     connection.on('message', function (message) {
         var msgData = JSON.parse(message.utf8Data)
+        console.log(msgData)
         switch(msgData.option) {
             case "userJoin":
-                connection.send('{"option": "test"}')
-                
-                saveData.users[saveData.length] = {"name": name, "msgHistory": []}
-                saveData.length++
-                curMsgHistory.push([1])
-                //Bot must be spoken to from here
-                
+                name = msgData.name
+                if(name in saveData.users) {              //in looks for indices, not values!
+                    connection.send(`{"option": "userJoin", "msgHistory": ${saveData.users[name].msgHistory}`)
+                    curHistory[name] = {"msgHitory": saveData.users[name].msgHistory, "msgPath": saveData.users[name].msgPath}
+                }
+                else {
+                    curHistory[msgData.name] = {"msgHistory": [firstMsg, name], "msgPath": []}
+                    //Bot must be spoken to from here AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                }                
 
                 break;
 

@@ -31,8 +31,8 @@ class salesBot {
     }
 
     connect () {                      //Used by staticExpress!
-        this.client.connect('ws://localhost:8081/', 'chat')
         this.connected = true
+        this.client.connect('ws://localhost:8081/', 'chat')
     }
 }
 
