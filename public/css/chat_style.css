@@ -118,13 +118,13 @@ html {
   margin: 0 0 0 10px;
 }
 
-.msger-inputarea {
+#msger-inputarea {
   display: flex;
   padding: 10px;
   border-top: var(--border);
   background: #eee;
 }
-.msger-inputarea * {
+#msger-inputarea * {
   padding: 10px;
   border: none;
   border-radius: 3px;

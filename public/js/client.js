@@ -10,7 +10,9 @@ socket.onopen = function () {
 
     myMsgPrinter.left("Welcome! To start, please choose a username that I can remember u by. Or remind me of who you are if we talked before!")
 
-    document.getElementById("msger-send-btn").onclick = () => {
+    const form = document.getElementById("msger-inputarea")
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
         if(openMsg && msgField.value !== "") {
             var inputValue = msgField.value
             msgField.value = ""
@@ -23,14 +25,17 @@ socket.onopen = function () {
                     break;
 
                 case "userMsg":
-                    var msg = msgQueue.shift()
+                    var msg = inputValue
                     socket.send(`{"option": "userMsg", "msg": ${msg}`)
                     break;
             }
             openMsg = false
             myMsgPrinter.right(myName, inputValue)
         }
-    }
+    })
+
+    
+
 
     socket.onmessage = function (msg) {
         const msgData = JSON.parse(msg.data)
@@ -48,6 +53,10 @@ socket.onopen = function () {
         
     }
 }
+
+
+
+
 
 class msgPrinter {
 
