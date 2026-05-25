@@ -12,7 +12,7 @@ socket.onopen = function () {
 
     const form = document.getElementById("msger-inputarea")
     form.addEventListener('submit', function(event) {
-        event.preventDefault();
+        event.preventDefault();        //Disallows the reload after a submit!
         if(openMsg && msgField.value !== "") {
             var inputValue = msgField.value
             msgField.value = ""
@@ -26,7 +26,7 @@ socket.onopen = function () {
 
                 case "userMsg":
                     var msg = inputValue
-                    socket.send(`{"option": "userMsg", "msg": ${msg}`)
+                    socket.send(`{"option": "userMsg", "msg": "${msg}"}`)
                     break;
             }
             openMsg = false
@@ -46,6 +46,7 @@ socket.onopen = function () {
                 break;
             
             case "botAnswer":
+                myMsgPrinter.left(msgData.msg)
                 break;
         }
 

@@ -10,19 +10,16 @@ try {
     console.log("hell yeah")
 } catch (err) {console.log("shiii")}
 
-var curHistory = []                //Because it should not automatically be saved, or when any user clicks save, but when the SPECIFIC user clicks save; null element for bot
+var curHistory = {
+    "SalesBot": {connection: null}
+}                //Because it should not automatically be saved, or when any user clicks save, but when the SPECIFIC user clicks save; null element for bot
 
-var saveData = 
-{
-    "users": []
-}
+var saveData = {}
 
 try {
     var save = fs.readFileSync('C:/serversideSaveFile', 'utf8')
     saveData = JSON.parse(save)
 } catch (err) {}
-
-for(var i = 1; i < saveData.users.length; i++) curMsgHistory.push(user.msgHistory)
 
 var app = express()
 app.use(express.static('public'))
@@ -46,47 +43,59 @@ var wss = new WSS({
 })
 
 var mySalesBot = new salesBot()
+mySalesBot.connect()
+
 var connections = {}
+
 
 wss.on('request', function (request) {                      //Dont base your logic on the connection! It doesn't survive over multiple sessions and the entire block exists separately for each request/user including the bot!
     var connection = request.accept('chat', request.origin)
-    var name = null
+    var name
 
     connection.on('message', function (message) {
         var msgData = JSON.parse(message.utf8Data)
-        console.log(msgData)
+
         switch(msgData.option) {
             case "userJoin":
                 name = msgData.name
-                if(name in saveData.users) {              //in looks for indices, not values!
-                    connection.send(`{"option": "userJoin", "msgHistory": ${saveData.users[name].msgHistory}`)
-                    curHistory[name] = {"msgHitory": saveData.users[name].msgHistory, "msgPath": saveData.users[name].msgPath}
+                if(name in saveData) {              //in looks for indices, not values!
+                    curHistory[name] = {"msgHitory": saveData.users[name].msgHistory, "msgPath": saveData.users[name].msgPath, "connection": connection}
+                    connection.send(`{"option": "userJoin", "name": "${name}", "msgPath": ${saveData[name].msgPath}}`)
                 }
                 else {
-                    curHistory[msgData.name] = {"msgHistory": [firstMsg, name], "msgPath": []}
-                    //Bot must be spoken to from here AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                    curHistory[msgData.name] = {"msgHistory": [firstMsg, name], "msgPath": [], "connection": connection}
+                    curHistory["SalesBot"].connection.send(`{"option": "firstUserMsg", "name": "${name}"}`)
                 }                
 
                 break;
 
             case "botJoin":
+                name = "SalesBot"
+                curHistory["SalesBot"].connection = connection
+                console.log("Bot successfully joined")
                 break;
             
             case "userMsg":
+                curHistory["SalesBot"].connection.send(`{"option": "userMsg", "name": "${name}", "msg": "${msgData.msg}", "msgPath": ${JSON.stringify(curHistory[name].msgPath)}}`)
+                //JSON.stringify() was used because of the problems an empty array causes in ${}, as it completely vanishes
                 break;
             
             case "botAnswer":
+                curHistory[msgData.name].msgHistory.push(msgData.msg)
+                curHistory[msgData.name].msgPath.push(msgData.newKeyword)
+                curHistory[msgData.name].connection.send(`{"option": "botAnswer", "msg": "${msgData.msg}"}`)
                 break;
-
+            
+            case "firstBotAnswer":
+                curHistory[msgData.name].msgHistory.push(msgData.msg)
+                curHistory[msgData.name].connection.send(`{"option": "botAnswer", "msg": "${msgData.msg}"}`)
+                break;
+            
             case "reset":
                 break;
             
             case "save":
                 break;
-        }
-
-        if (mySalesBot.connected === false) {
-            mySalesBot.connect()
         }
     })
 })

@@ -1,0 +1,13 @@
+{
+    "response": "Thank you for using our service. What can I do you for?",
+    "wordList": {
+        "keyword": {
+            "response": "responseIfKeyword1Found",
+            "wordList": {
+
+            },
+            "defaults": []
+        }
+    },
+    "defaults": ["I didn't understand", "Whatever bro"]
+}
