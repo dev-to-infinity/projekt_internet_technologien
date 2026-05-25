@@ -1,13 +1,38 @@
 {
     "response": "Thank you for using our service. What can I do you for?",
-    "wordList": {
-        "keyword": {
-            "response": "responseIfKeyword1Found",
-            "wordList": {
+    "nodeList": [{
+        "keywords": ["book", "reserv", "order", "buy"],
+        "response": "I understand you're looking to book a flight? In that case, would you mind telling me the flight's ID?",
+        "nodeList": [{
 
-            },
-            "defaults": []
-        }
+        },
+        {
+
+        }],
+        "defaults": ["holy sheet"]
     },
-    "defaults": ["I didn't understand", "Whatever bro"]
+    {
+        "keywords": ["cancel", "revers", "revoc", "rescis"],
+        "response": "I'm sorry that you want to cancel. Please let me know the ID of the order in question.",
+        "nodeList": [{ 
+
+        },
+        {
+            
+        }],
+        "defaults":  []
+    }
+    ],
+    "defaults": [
+        "Are you maybe interested in booking a flight?",
+        "In case you want to cancel a flight, let me know.",
+        "I could certainly help you with booking or cancelling a flight, if that is what you're looking for."
+    ],
+    "rootDefaults": [
+        "I'm sorry, I didn't quite catch that.", 
+        "My apologies, I'll need some more assistance with your request.", 
+        "I couldn't quite process your request.", 
+        "Unfortunately I will need some more clarification.",
+        "It is possible that your request doesn't lie within my abilities."
+    ]
 }

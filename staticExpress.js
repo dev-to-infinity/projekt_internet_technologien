@@ -4,6 +4,7 @@ var http = require('http')
 var WSS = require('websocket').server
 
 var firstMsg = "Welcome! To start, please choose a username that I can remember u by. Or remind me of who you are if we talked before!"
+var rotationModule = 1000
 
 try {
     require('Node:fs')
@@ -59,11 +60,11 @@ wss.on('request', function (request) {                      //Dont base your log
             case "userJoin":
                 name = msgData.name
                 if(name in saveData) {              //in looks for indices, not values!
-                    curHistory[name] = {"msgHitory": saveData.users[name].msgHistory, "msgPath": saveData.users[name].msgPath, "connection": connection}
+                    curHistory[name] = {"msgHitory": saveData.users[name].msgHistory, "msgPath": saveData[name].msgPath, "rotation": saveData[name].rotation % 50, "connection": connection}
                     connection.send(`{"option": "userJoin", "name": "${name}", "msgPath": ${saveData[name].msgPath}}`)
                 }
                 else {
-                    curHistory[msgData.name] = {"msgHistory": [firstMsg, name], "msgPath": [], "connection": connection}
+                    curHistory[msgData.name] = {"msgHistory": [firstMsg, name], "msgPath": [], "rotation": 0, "connection": connection}
                     curHistory["SalesBot"].connection.send(`{"option": "firstUserMsg", "name": "${name}"}`)
                 }                
 
@@ -76,21 +77,27 @@ wss.on('request', function (request) {                      //Dont base your log
                 break;
             
             case "userMsg":
-                curHistory["SalesBot"].connection.send(`{"option": "userMsg", "name": "${name}", "msg": "${msgData.msg}", "msgPath": ${JSON.stringify(curHistory[name].msgPath)}}`)
+                curHistory["SalesBot"].connection.send(`{"option": "userMsg", "name": "${name}", "msg": "${msgData.msg}", "rotation": ${curHistory[name].rotation}, "msgPath": ${JSON.stringify(curHistory[name].msgPath)}}`)
                 //JSON.stringify() was used because of the problems an empty array causes in ${}, as it completely vanishes
                 break;
             
             case "botAnswer":
+                switch(msgData.result){
+                    case "hit":
+                        curHistory[msgData.name].msgPath.push(msgData.newKeyword)
+                        break;
+                    
+                    case "miss":
+                        curHistory[msgData.name].rotation = curHistory[msgData.name].rotation + 1 % rotationModule
+                        break;
+                    
+                    case "first":
+                        break;
+                }
                 curHistory[msgData.name].msgHistory.push(msgData.msg)
-                curHistory[msgData.name].msgPath.push(msgData.newKeyword)
                 curHistory[msgData.name].connection.send(`{"option": "botAnswer", "msg": "${msgData.msg}"}`)
                 break;
-            
-            case "firstBotAnswer":
-                curHistory[msgData.name].msgHistory.push(msgData.msg)
-                curHistory[msgData.name].connection.send(`{"option": "botAnswer", "msg": "${msgData.msg}"}`)
-                break;
-            
+
             case "reset":
                 break;
             
