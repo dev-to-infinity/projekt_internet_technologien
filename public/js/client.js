@@ -1,18 +1,20 @@
-var socket = new WebSocket('http://localhost:8081', 'chat')
+var socket = new WebSocket('http://localhost:8081', 'chat')           //change localhost to your ip if you want it to work from another device, then type http://yourIP:8081
+
+const msger_chat = document.getElementById('msger-chat')
 
 socket.onopen = function () {
     const myMsgPrinter = new msgPrinter()
     const msgField = document.getElementById('msger-input')
     var openMsg = true
     var option = "userJoin"
-    var myName = "user"
-    
+    var myName = "user"   
 
     myMsgPrinter.left("Welcome! To start, please choose a username that I can remember u by. Or remind me of who you are if we talked before!")
 
     const form = document.getElementById("msger-inputarea")
     form.addEventListener('submit', function(event) {
         event.preventDefault();        //Disallows the reload after a submit!
+
         if(openMsg && msgField.value !== "") {
             var inputValue = msgField.value
             msgField.value = ""
@@ -61,7 +63,6 @@ socket.onopen = function () {
 
 class msgPrinter {
 
-    msger_chat = document.getElementById('msger-chat')
     currentDate = new Date()
 
     createTimestamp(){
@@ -88,10 +89,12 @@ class msgPrinter {
     }
 
     left(msg) {
-        this.msger_chat.innerHTML += this.createMsg("left", "SalesBot", "../img/customer-service.webp", msg)
+        msger_chat.innerHTML += this.createMsg("left", "SalesBot", "../img/customer-service.webp", msg)
+        msger_chat.scrollTop = msger_chat.scrollHeight          //code from third website in notes.txt, medium
     }
 
     right(name, msg) {
-        this.msger_chat.innerHTML += (this.createMsg("right", name, "../img/user-pfp.jpeg", msg))
+        msger_chat.innerHTML += (this.createMsg("right", name, "../img/user-pfp.jpeg", msg))
+        msger_chat.scrollTop = msger_chat.scrollHeight
     }
 }

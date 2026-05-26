@@ -6,12 +6,7 @@ const wordTree = require('./wordTree.json')
 const responder = (msg, msgPath, rotation) => {
     var curNode = wordTree               //When JSON file is going to be used this is just gonna be the parsed file which is literally an instance
 
-    console.log("msgPath: ", msgPath)
-
     for(var i in msgPath) curNode = curNode.nodeList[msgPath[i]]
-
-    console.log(curNode)
-    console.log("Trenner")
 
     for(var nodeIndex in curNode.nodeList) for(var keywordIndex in curNode.nodeList[nodeIndex].keywords) if(msg.includes(curNode.nodeList[nodeIndex].keywords[keywordIndex])) return {"match": true, "nodeIndex": nodeIndex, "response": curNode.nodeList[nodeIndex].response, "specialCase": curNode.nodeList[nodeIndex].specialCase}    //which means if two words from wordList exist as a substring in msg only the first one matters
 
@@ -45,7 +40,7 @@ class salesBot {
                 switch(msgData.option){
                     case "userMsg":
                         var responseObj = responder(msgData.msg, msgData.msgPath, msgData.rotation)
-                        if(responseObj.match) connection.send(`{"option": "botAnswer", "result": "hit", "msg": "${responseObj.response}", "name": "${msgData.name}", "nodeIndex": "${responseObj.nodeIndex}"}`)
+                        if(responseObj.match) connection.send(`{"option": "botAnswer", "result": "hit", "msg": "${responseObj.response}", "name": "${msgData.name}", "nodeIndex": ${responseObj.nodeIndex}}`)
                         else connection.send(`{"option": "botAnswer", "result": "miss", "name": "${msgData.name}", "msg": "${responseObj.response}"}`)
                         break;
                     case "firstUserMsg":

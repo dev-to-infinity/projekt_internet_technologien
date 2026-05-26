@@ -60,7 +60,7 @@ wss.on('request', function (request) {                      //Dont base your log
             case "userJoin":
                 name = msgData.name
                 if(name in saveData) {              //in looks for indices, not values!
-                    curHistory[name] = {"msgHitory": saveData.users[name].msgHistory, "msgPath": saveData[name].msgPath, "rotation": saveData[name].rotation % 50, "connection": connection}
+                    curHistory[name] = {"msgHitory": saveData.users[name].msgHistory, "msgPath": saveData[name].msgPath, "rotation": saveData[name].rotation % rotationModule, "connection": connection}
                     connection.send(`{"option": "userJoin", "name": "${name}", "msgPath": ${saveData[name].msgPath}}`)
                 }
                 else {
