@@ -84,7 +84,7 @@ wss.on('request', function (request) {                      //Dont base your log
             case "botAnswer":
                 switch(msgData.result){
                     case "hit":
-                        curHistory[msgData.name].msgPath.push(msgData.newKeyword)
+                        curHistory[msgData.name].msgPath.push(msgData.nodeIndex)
                         break;
                     
                     case "miss":

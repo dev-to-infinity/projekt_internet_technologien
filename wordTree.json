@@ -3,24 +3,16 @@
     "nodeList": [{
         "keywords": ["book", "reserv", "order", "buy"],
         "response": "I understand you're looking to book a flight? In that case, would you mind telling me the flight's ID?",
-        "nodeList": [{
-
-        },
-        {
-
-        }],
-        "defaults": ["holy sheet"]
+        "nodeList": [],
+        "defaults": ["holy sheet"],
+        "specialCase": "none"
     },
     {
         "keywords": ["cancel", "revers", "revoc", "rescis"],
         "response": "I'm sorry that you want to cancel. Please let me know the ID of the order in question.",
-        "nodeList": [{ 
-
-        },
-        {
-            
-        }],
-        "defaults":  []
+        "nodeList": [],
+        "defaults": ["This is starting to look good"],
+        "specialCase": "none"
     }
     ],
     "defaults": [
@@ -28,6 +20,7 @@
         "In case you want to cancel a flight, let me know.",
         "I could certainly help you with booking or cancelling a flight, if that is what you're looking for."
     ],
+    "specialCase": "none",
     "rootDefaults": [
         "I'm sorry, I didn't quite catch that.", 
         "My apologies, I'll need some more assistance with your request.", 
