@@ -3,14 +3,31 @@
 var WebSocketClient = require('websocket').client
 const wordTree = require('./wordTree.json')
 
-const responder = (msg, msgPath, rotation) => {
+const responder = (msg, msgPath, rotation, userInstruction) => {
     var curNode = wordTree               //When JSON file is going to be used this is just gonna be the parsed file which is literally an instance
 
-    for(var i in msgPath) curNode = curNode.nodeList[msgPath[i]]
+    for(var i in msgPath) curNode = curNode.nextNodes[msgPath[i]]
 
-    for(var nodeIndex in curNode.nodeList) for(var keywordIndex in curNode.nodeList[nodeIndex].keywords) if(msg.includes(curNode.nodeList[nodeIndex].keywords[keywordIndex])) return {"match": true, "nodeIndex": nodeIndex, "response": curNode.nodeList[nodeIndex].response, "specialCase": curNode.nodeList[nodeIndex].specialCase}    //which means if two words from wordList exist as a substring in msg only the first one matters
+    switch(userInstruction){
+        case "none":
+            for(var nodeIndex in curNode.nextNodes) for(var keywordIndex in curNode.nextNodes[nodeIndex].keywords){
+                console.log(curNode.nextNodes[nodeIndex].keywords[keywordIndex])
+                if(msg.includes(curNode.nextNodes[nodeIndex].keywords[keywordIndex])){
+                    console.log("what was returned by responder: ", {"result": "hit", "nodeIndex": nodeIndex, "msg": curNode.nextNodes[nodeIndex].response, "userInstruction": curNode.nextNodes[nodeIndex].userInstruction, "serverInstruction": curNode.nextNodes[nodeIndex].serverInstruction})
+                    return {"result": "hit", "nodeIndex": nodeIndex, "msg": curNode.nextNodes[nodeIndex].response, "userInstruction": curNode.nextNodes[nodeIndex].userInstruction, "serverInstruction": curNode.nextNodes[nodeIndex].serverInstruction}
+                }    //which means if two words from wordList exist as a substring in msg only the first one matters
+            } 
+            break;
 
-    return {"match": false, "response": wordTree.rootDefaults[rotation % wordTree.rootDefaults.length] + " " + curNode.defaults[rotation % curNode.defaults.length]}
+        case "expectNumber":
+            var number = Number(msg)
+            console.log("received number: ", number)
+            if(!isNaN(number)) return {"result": "hit","nodeIndex": 0, "msg": curNode.nextNodes[0].response, "userInstruction": curNode.nextNodes[0].userInstruction, "serverInstruction": curNode.nextNodes[0].serverInstruction, "value": number}
+            break;
+    }
+
+    return {"result": "miss", "msg": wordTree.rootDefaults[rotation % wordTree.rootDefaults.length] + " " + curNode.defaults[rotation % curNode.defaults.length]}
+    
 }
 
 class salesBot {
@@ -39,9 +56,11 @@ class salesBot {
                 var msgData = JSON.parse(message.utf8Data)
                 switch(msgData.option){
                     case "userMsg":
-                        var responseObj = responder(msgData.msg, msgData.msgPath, msgData.rotation)
-                        if(responseObj.match) connection.send(`{"option": "botAnswer", "result": "hit", "msg": "${responseObj.response}", "name": "${msgData.name}", "nodeIndex": ${responseObj.nodeIndex}}`)
-                        else connection.send(`{"option": "botAnswer", "result": "miss", "name": "${msgData.name}", "msg": "${responseObj.response}"}`)
+                        var responseObj = responder(msgData.msg, msgData.msgPath, msgData.rotation, msgData.userInstruction)
+                        responseObj.name = msgData.name
+                        responseObj.option = "botAnswer"
+                        connection.send(JSON.stringify(responseObj))
+                        console.log("what was sent: ", JSON.stringify(responseObj))
                         break;
                     case "firstUserMsg":
                         connection.send(`{"option": "botAnswer", "result": "first", "name": "${msgData.name}", "msg": "${wordTree.response}"}`)

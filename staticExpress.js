@@ -60,11 +60,11 @@ wss.on('request', function (request) {                      //Dont base your log
             case "userJoin":
                 name = msgData.name
                 if(name in saveData) {              //in looks for indices, not values!
-                    curHistory[name] = {"msgHitory": saveData.users[name].msgHistory, "msgPath": saveData[name].msgPath, "rotation": saveData[name].rotation % rotationModule, "connection": connection}
+                    curHistory[name] = {"msgHitory": saveData.users[name].msgHistory, "msgPath": saveData[name].msgPath, "rotation": saveData[name].rotation, "userInstruction": saveData[name].userInstruction, "connection": connection}
                     connection.send(`{"option": "userJoin", "name": "${name}", "msgPath": ${saveData[name].msgPath}}`)
                 }
                 else {
-                    curHistory[msgData.name] = {"msgHistory": [firstMsg, name], "msgPath": [], "rotation": 0, "connection": connection}
+                    curHistory[msgData.name] = {"msgHistory": [firstMsg, name], "msgPath": [], "rotation": 0, "userInstruction": "none", "connection": connection}
                     curHistory["SalesBot"].connection.send(`{"option": "firstUserMsg", "name": "${name}"}`)
                 }                
 
@@ -77,14 +77,24 @@ wss.on('request', function (request) {                      //Dont base your log
                 break;
             
             case "userMsg":
-                curHistory["SalesBot"].connection.send(`{"option": "userMsg", "name": "${name}", "msg": "${msgData.msg}", "rotation": ${curHistory[name].rotation}, "msgPath": ${JSON.stringify(curHistory[name].msgPath)}}`)
+                curHistory["SalesBot"].connection.send(`{"option": "userMsg", "name": "${name}", "msg": "${msgData.msg}", "rotation": ${curHistory[name].rotation}, "userInstruction": "${curHistory[name].userInstruction}", "msgPath": ${JSON.stringify(curHistory[name].msgPath)}}`)
                 //JSON.stringify() was used because of the problems an empty array causes in ${}, as it completely vanishes
                 break;
             
             case "botAnswer":
+                console.log("What was received: ", msgData)
                 switch(msgData.result){
                     case "hit":
                         curHistory[msgData.name].msgPath.push(msgData.nodeIndex)
+                        curHistory[msgData.name].userInstruction = msgData.userInstruction    //AAAAAAAAAAAAAAAAAAAAAAAA verändern!
+                        console.log("what's in curHistory: ", curHistory[msgData.name].userInstruction)
+                        switch(msgData.serverInstruction){
+                            case "initPendingOrder":
+                                break;
+                            case "cancelOrder":
+                                break;
+                            //AAAAAAAAAAAAAAAAAA wie veränderst du specialCase? Du musst das auf serverInstruction und userInstruction umverändern oder so
+                        }
                         break;
                     
                     case "miss":

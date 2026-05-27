@@ -1,26 +1,34 @@
 {
     "response": "Thank you for using our service. What can I do you for?",
-    "nodeList": [{
+    "nextNodes": [{
         "keywords": ["book", "reserv", "order", "buy"],
         "response": "I understand you're looking to book a flight? In that case, would you mind telling me the flight's ID?",
-        "nodeList": [],
-        "defaults": ["holy sheet"],
-        "specialCase": "none"
+        "nextNodes": [{
+            "response": "Ye that shi was a number fs",
+            "nextNodes": [],
+            "defaults": ["No further nodes for u my guy"],
+            "userInstruction": "none",
+            "serverInstruction": "initPendingOrder"
+        }],
+        "defaults": ["Gimme a number cuh"],
+        "userInstruction": "expectNumber",
+        "serverInstruction": "none"
     },
     {
         "keywords": ["cancel", "revers", "revoc", "rescis"],
         "response": "I'm sorry that you want to cancel. Please let me know the ID of the order in question.",
-        "nodeList": [],
+        "nextNodes": [{
+
+        }],
         "defaults": ["This is starting to look good"],
-        "specialCase": "none"
-    }
-    ],
+        "userInstruction": "expectNumber",
+        "serverInstruction": "none"
+    }],
     "defaults": [
         "Are you maybe interested in booking a flight?",
         "In case you want to cancel a flight, let me know.",
         "I could certainly help you with booking or cancelling a flight, if that is what you're looking for."
     ],
-    "specialCase": "none",
     "rootDefaults": [
         "I'm sorry, I didn't quite catch that.", 
         "My apologies, I'll need some more assistance with your request.", 
