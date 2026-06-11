@@ -18,7 +18,7 @@
         "keywords": ["cancel", "revers", "revoc", "rescis"],
         "response": "I'm sorry that you want to cancel. Please let me know the ID of the order in question.",
         "nextNodes": [{
-
+            "response": "Ok, I cancelled your order. You will now be redirected to the detail page."
         }],
         "defaults": ["This is starting to look good"],
         "userInstruction": "expectNumber",

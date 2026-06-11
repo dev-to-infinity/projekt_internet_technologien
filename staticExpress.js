@@ -2,23 +2,20 @@ var salesBot = require('./salesBot')
 var express = require('express')
 var http = require('http')
 var WSS = require('websocket').server
+var fs = require('node:fs')
 
 var firstMsg = "Welcome! To start, please choose a username that I can remember u by. Or remind me of who you are if we talked before!"
 var rotationModule = 1000
-
-try {
-    require('Node:fs')
-    console.log("hell yeah")
-} catch (err) {console.log("shiii")}
 
 var curHistory = {
     "SalesBot": {connection: null}
 }                //Because it should not automatically be saved, or when any user clicks save, but when the SPECIFIC user clicks save; null element for bot
 
 var saveData = {}
+var save = ""
 
 try {
-    var save = fs.readFileSync('C:/serversideSaveFile', 'utf8')
+    save = fs.readFileSync('./saveFile.txt', 'utf8', {flag: 'r+'})
     saveData = JSON.parse(save)
 } catch (err) {}
 
@@ -60,11 +57,13 @@ wss.on('request', function (request) {                      //Dont base your log
             case "userJoin":
                 name = msgData.name
                 if(name in saveData) {              //in looks for indices, not values!
-                    curHistory[name] = {"msgHitory": saveData.users[name].msgHistory, "msgPath": saveData[name].msgPath, "rotation": saveData[name].rotation, "userInstruction": saveData[name].userInstruction, "connection": connection}
-                    connection.send(`{"option": "userJoin", "name": "${name}", "msgPath": ${saveData[name].msgPath}}`)
+                    console.log("we are here")
+                    curHistory[name] = {"msgHitory": saveData[name].msgHistory, "msgPath": saveData[name].msgPath, "rotation": saveData[name].rotation, "userInstruction": saveData[name].userInstruction, "connection": connection}
+                    connection.send(`{"option": "userJoin", "msgHistory": ${JSON.stringify(saveData[name].msgHistory)}}`)
+                    console.log("sent")
                 }
                 else {
-                    curHistory[msgData.name] = {"msgHistory": [firstMsg, name], "msgPath": [], "rotation": 0, "userInstruction": "none", "connection": connection}
+                    curHistory[name] = {"msgHistory": [firstMsg, name], "msgPath": [], "rotation": 0, "userInstruction": "none", "connection": connection}
                     curHistory["SalesBot"].connection.send(`{"option": "firstUserMsg", "name": "${name}"}`)
                 }                
 
@@ -105,13 +104,26 @@ wss.on('request', function (request) {                      //Dont base your log
                         break;
                 }
                 curHistory[msgData.name].msgHistory.push(msgData.msg)
-                curHistory[msgData.name].connection.send(`{"option": "botAnswer", "msg": "${msgData.msg}"}`)
+                curHistory[msgData.name].connection.send(`{"option": "answer", "msg": "${msgData.msg}"}`)
                 break;
 
             case "reset":
                 break;
             
             case "save":
+                var toBeSaved = Object.assign({}, curHistory[name])
+                delete toBeSaved['connection']
+                saveData[name] = toBeSaved
+                var msg = ""
+                console.log(saveData)
+                var worked = true
+                fs.writeFile('./saveFile.txt', JSON.stringify(saveData), (err) => {
+                    worked = false
+                    msg = "Apologies, but the server could currently not save your chat status."
+                    console.log(err)
+                })
+                if(worked) msg = "Chat saved successfully."
+                curHistory[name].connection.send(`{"option": "answer", "msg": "${msg}"}`)
                 break;
         }
     })

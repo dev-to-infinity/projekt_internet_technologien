@@ -1,6 +1,7 @@
 var socket = new WebSocket('http://localhost:8081', 'chat')           //change localhost to your ip if you want it to work from another device, then type http://yourIP:8081
 
 const msger_chat = document.getElementById('msger-chat')
+const saveBtn = document.getElementById('saveBtn')
 
 socket.onopen = function () {
     const myMsgPrinter = new msgPrinter()
@@ -36,24 +37,32 @@ socket.onopen = function () {
         }
     })
 
-    
+    saveBtn.onclick = () => {
+        myMsgPrinter.right(myName, "Save")
+        socket.send(`{"option": "save"}`)
+    }
 
-
-    socket.onmessage = function (msg) {
+    socket.onmessage = (msg) => {
         const msgData = JSON.parse(msg.data)
+        alert("json worked")
 
-        switch(msgData.option) {
+        switch (msgData.option) {
             case "userJoin":
                 option = "userMsg"
-                break;
-            
-            case "botAnswer":
-                myMsgPrinter.left(msgData.msg)
-                break;
-        }
+                msger_chat.innerHTML = ""
+                for (i in msgData.msgHistory) {
+                    if (i % 2 == 0) {
+                        myMsgPrinter.left(msgData.msgHistory[i])
+                    }
+                    else { myMsgPrinter.right(myName, msgData.msgHistory[i])} 
+                }
+                break
 
+            case "answer":
+                myMsgPrinter.left(msgData.msg)
+                break
+        }
         openMsg = true
-        
     }
 }
 
