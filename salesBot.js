@@ -7,20 +7,19 @@ const responder = (msg, msgPath, rotation, userInstruction) => {
     var curNode = wordTree               //When JSON file is going to be used this is just gonna be the parsed file which is literally an instance
 
     for(var i in msgPath) curNode = curNode.nextNodes[msgPath[i]]
+    console.log("curnode: " + curNode)
 
     switch(userInstruction){
-        case "none":
+        case "expectNumber":
+            var number = Number(msg)
+            if(!isNaN(number)) return {"result": "hit","nodeIndex": 0, "msg": curNode.nextNodes[0].response, "userInstruction": curNode.nextNodes[0].userInstruction, "serverInstruction": curNode.nextNodes[0].serverInstruction, "value": number}
+            break;
+        default:
             for(var nodeIndex in curNode.nextNodes) for(var keywordIndex in curNode.nextNodes[nodeIndex].keywords){
                 if(msg.includes(curNode.nextNodes[nodeIndex].keywords[keywordIndex])){
                     return {"result": "hit", "nodeIndex": nodeIndex, "msg": curNode.nextNodes[nodeIndex].response, "userInstruction": curNode.nextNodes[nodeIndex].userInstruction, "serverInstruction": curNode.nextNodes[nodeIndex].serverInstruction}
                 }    //which means if two words from wordList exist as a substring in msg only the first one matters
             } 
-            break;
-
-        case "expectNumber":
-            var number = Number(msg)
-            if(!isNaN(number)) return {"result": "hit","nodeIndex": 0, "msg": curNode.nextNodes[0].response, "userInstruction": curNode.nextNodes[0].userInstruction, "serverInstruction": curNode.nextNodes[0].serverInstruction, "value": number}
-            break;
     }
 
     return {"result": "miss", "msg": wordTree.rootDefaults[rotation % wordTree.rootDefaults.length] + " " + curNode.defaults[rotation % curNode.defaults.length]}

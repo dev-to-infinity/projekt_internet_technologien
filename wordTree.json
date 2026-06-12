@@ -4,25 +4,59 @@
         "keywords": ["book", "reserv", "order", "buy"],
         "response": "I understand you're looking to book a flight? In that case, would you mind telling me the flight's ID?",
         "nextNodes": [{
-            "response": "Ye that shi was a number fs",
-            "nextNodes": [],
-            "defaults": ["No further nodes for u my guy"],
-            "userInstruction": "none",
-            "serverInstruction": "initPendingOrder"
+            "response": "Thank you!",
+            "nextNodes": [{
+                "keywords": ["ye", "yu", "ya"],
+                "response": "Great! I initiated a pending order for you. How many people are you booking the flight for?",
+                "nextNodes": [{
+                    "response": "Got it. To finalize, please confirm your order with the word 'Confirm'.",
+                    "nextNodes": [{
+                        "keywords": ["confirm"],
+                        "response": "Thank you! You will be redirected to the detail page in five seconds.",
+                        "serverInstruction": "registerOrder"
+                    }],
+                    "defaults": ["Please say 'Confirm' or reset."],
+                    "serverInstruction": "saveSeats"
+                }],
+                "defaults": [
+                    "I'll need you to give me a number here.",
+                    "How many tickets do you need?",
+                    "If you could please tell me how many people are meant to onboard?",
+                    "Please provide a headcount."
+                ],
+                "userInstruction": "expectNumber",
+                "serverInstruction": "initPendingOrder"
+            },
+            {
+                "keywords": ["no", "nuh", "na", "n't"],
+                "response": "Alright, in that case I'll reset the chat for you in five seconds.",
+                "serverInstruction": "reset"
+            }],
+            "defaults": [
+                "I need a clear yes or no, please.",
+                "An answer to the previous question is required to continue.",
+                "Please tell me if the provided details sound good to you.",
+                "Preferably, I'd need a clear yes or no."
+            ],
+            "serverInstruction": "detailsPermission"
         }],
-        "defaults": ["Gimme a number cuh"],
-        "userInstruction": "expectNumber",
-        "serverInstruction": "none"
+        "defaults": [
+            "I'll need an ID, please.",
+            "You can find the ID on your flight's description.",
+            "An ID will be necessary.",
+            "Could you please provide the flight's ID?"
+        ],
+        "userInstruction": "expectNumber"
     },
     {
         "keywords": ["cancel", "revers", "revoc", "rescis"],
         "response": "I'm sorry that you want to cancel. Please let me know the ID of the order in question.",
         "nextNodes": [{
-            "response": "Ok, I cancelled your order. You will now be redirected to the detail page."
+            "response": "Ok, I cancelled your order. You will be redirected to the detail page in five seconds.",
+            "serverInstruction": "cancelOrder"
         }],
         "defaults": ["This is starting to look good"],
-        "userInstruction": "expectNumber",
-        "serverInstruction": "none"
+        "userInstruction": "expectNumber"
     }],
     "defaults": [
         "Are you maybe interested in booking a flight?",
@@ -34,6 +68,7 @@
         "My apologies, I'll need some more assistance with your request.", 
         "I couldn't quite process your request.", 
         "Unfortunately I will need some more clarification.",
-        "It is possible that your request doesn't lie within my abilities."
+        "It is possible that your request doesn't lie within my abilities.",
+        "Crazy lost rn."
     ]
 }

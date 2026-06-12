@@ -3,16 +3,28 @@ var socket = new WebSocket('http://localhost:8081', 'chat')           //change l
 const msger_chat = document.getElementById('msger-chat')
 const optionBtns = document.getElementsByClassName('msger-options-btn')
 const startMsg = "Welcome! To start, please choose a username that I can remember u by. Or remind me of who you are if we talked before!"
+const url = document.URL
+var docName = ""
+if(url.includes("flights")) docName = "flights"
+else if(url.includes("orders")) docName = "orders"
+
+
+//const myWindow = window.open('./planes.html')
 
 socket.onopen = function () {
     const myMsgPrinter = new msgPrinter()
     const msgField = document.getElementById('msger-input')
-    var openMsg = true
+    var openMsg = false
     var option = "userJoin"
     var myName = "user"
     var optionsAllowed = false
 
     myMsgPrinter.left(startMsg)
+
+    var requestItem
+    if(docName == "flights") requestItem = "flightsList"
+    else requestItem = "orders"
+    socket.send(`{"option": "userRequest", "requestItem": "${requestItem}"}`)
 
     const form = document.getElementById("msger-inputarea")
     form.addEventListener('submit', function(event) {
@@ -48,7 +60,6 @@ socket.onopen = function () {
             myMsgPrinter.right(myName, "Save")
             openMsg = false
             socket.send(`{"option": "save"}`)
-            alert("sent: save")
         }
     }
 
@@ -58,7 +69,6 @@ socket.onopen = function () {
             myMsgPrinter.right(myName, "Reset")
             openMsg = false
             socket.send(`{"option": "reset"}`)
-            alert("sent: reset")
         }
     }
 
@@ -79,6 +89,32 @@ socket.onopen = function () {
 
             case "answer":
                 myMsgPrinter.left(msgData.msg)
+                if(msgData.userInstruction == "reset"){
+                    setTimeout(() => {
+                        msger_chat.innerHTML = ""
+                        openMsg = false
+                        socket.send(`{"option": "reset"}`)
+                    }, (5000))
+                }
+                break
+            
+            case "requestAnswer":
+                var item = msgData.item
+                if(docName == "flights"){
+                    var destinationList = document.getElementsByClassName('destination')
+                    var seatsList = document.getElementsByClassName('seats')
+                    var costList = document.getElementsByClassName('cost')
+
+                    var indices = [104, 309, 56]
+                    for(var i in indices){
+                        destinationList[i].innerHTML = `From: Montenegro Airport, To: ${item[indices[i]].destination}`
+                        seatsList[i].innerHTML = `Free seats: ${item[indices[i]].freeSeats}`
+                        costList[i].innerHTML = `Cost per person: ${item[indices[i]].costPerPerson}`
+                    }
+                }
+                else{
+
+                }
                 break
         }
         openMsg = true

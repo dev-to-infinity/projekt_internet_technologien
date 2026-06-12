@@ -9,9 +9,15 @@ var rotationModule = 1000
 
 var curHistory = {
     "SalesBot": {connection: null}
-}                //Because it should not automatically be saved, or when any user clicks save, but when the SPECIFIC user clicks save; null element for bot
+} //Because it should not automatically be saved, or when any user clicks save, but when the SPECIFIC user clicks save; null element for bot
 
-var saveData = {}
+var saveData = {
+    "flightsList": {104: {"destination": "Istanbul Airport", "freeSeats": 12, "costPerPerson": "300$"}, 309: {"destination": "Chișinău Airport", "freeSeats": 8, "costPerPerson": "20$"}, 56: {"destination": "Moscow Airport", "freeSeats": 16, "costPerPerson": "600$"}},
+    "orders": {
+        "pending": {},
+        "registered": {}
+    }
+}
 var save = ""
 
 try {
@@ -52,19 +58,28 @@ wss.on('request', function (request) {                      //Dont base your log
 
     connection.on('message', function (message) {
         var msgData = JSON.parse(message.utf8Data)
+        //console.log(msgData)
 
         switch(msgData.option) {
+            case "userRequest":
+                var item
+                if(msgData.requestItem == "flightsList"){
+                    item = saveData.flightsList
+                } 
+                else item = saveData.orders
+                connection.send(`{"option": "requestAnswer", "item": ${JSON.stringify(item)}}`)
+                break
             case "userJoin":
                 name = msgData.name
-                if(name in saveData) {              //in looks for indices, not values!
+                if(name in saveData && !name in ["flightsList", "orders"]) {              //in looks for indices, not values!
                     curHistory[name] = {"msgHistory": saveData[name].msgHistory, "msgPath": saveData[name].msgPath, "rotation": saveData[name].rotation, "userInstruction": saveData[name].userInstruction, "connection": connection}
                     connection.send(`{"option": "userJoin", "msgHistory": ${JSON.stringify(saveData[name].msgHistory)}}`)
                 }
                 else {
                     curHistory[name] = {"msgHistory": [firstMsg, name], "msgPath": [], "rotation": 0, "userInstruction": "none", "connection": connection}
                     curHistory["SalesBot"].connection.send(`{"option": "firstUserMsg", "name": "${name}"}`)
-                }                
-
+                }
+                curHistory[name].curOrder = false              
                 break;
 
             case "botJoin":
@@ -80,17 +95,63 @@ wss.on('request', function (request) {                      //Dont base your log
                 break;
             
             case "botAnswer":
+                var userInstruction = false
+                var item = false
                 switch(msgData.result){
                     case "hit":
                         curHistory[msgData.name].msgPath.push(msgData.nodeIndex)
-                        curHistory[msgData.name].userInstruction = msgData.userInstruction    //AAAAAAAAAAAAAAAAAAAAAAAA verändern!
+                        console.log(curHistory[msgData.name].msgPath)
+                        curHistory[msgData.name].userInstruction = msgData.userInstruction
+                        console.log(curHistory[msgData.name].userInstruction)
                         switch(msgData.serverInstruction){
+                            case "detailsPermission":
+                                curHistory[msgData.name].curOrder = curHistory[msgData.name].msgHistory[curHistory[msgData.name].msgHistory.length - 1]
+                                if(curHistory[msgData.name].curOrder in saveData.flightsList){
+                                    msgData.msg += ` Are you fine with the following details? Destination: ${saveData.flightsList[curHistory[msgData.name].curOrder].destination}; Costs per person: ${saveData.flightsList[curHistory[msgData.name].curOrder].costPerPerson}`
+                                }
+                                else{
+                                    msgData.msg = "Unfortunately that flight ID does not exist. Your chat will be reset soon."
+                                    userInstruction = "reset"
+                                }
+                                break
                             case "initPendingOrder":
+                                if(!(msgData.name in saveData.orders.pending)) saveData.orders.pending[msgData.name] = {}
+                                saveData.orders.pending[msgData.name][curHistory[msgData.name].curOrder] = "?"
+                                fs.writeFile('./saveFile.txt', JSON.stringify(saveData), (err) => {})
+                                break;
+                            case "saveSeats":
+                                var seats = curHistory[msgData.name].msgHistory[curHistory[msgData.name].msgHistory.length - 1]
+                                saveData.orders.pending[msgData.name][curHistory[msgData.name].curOrder] = seats
+                                fs.writeFile('./saveFile.txt', JSON.stringify(saveData), (err) => {})
+                                break
+                            case "registerOrder":
+                                var seats = saveData.orders.pending[msgData.name][curHistory[msgData.name].curOrder]
+                                if(saveData.flightsList[curHistory[msgData.name].curOrder].freeSeats - seats <= 0){
+                                    msgData.msg = "Unfortunately I cannot book these many seats for you. Your chat will be reset soon."
+                                    delete saveData.orders.pending[msgData.name][curHistory[msgData.name].curOrder]
+                                    userInstruction = "reset"      
+                                }
+                                else{
+                                    console.log(1)
+                                    saveData.flightsList[curHistory[msgData.name].curOrder].freeSeats -= seats
+                                    if(!(msgData.name in saveData.orders.registered)) saveData.orders.registered[msgData.name] = {}
+                                    if(!(curHistory[msgData.name].curOrder in saveData.orders.registered[msgData.name])) saveData.orders.registered[msgData.name][curHistory[msgData.name].curOrder] = []
+                                    var myDate = new Date()
+                                    item = {"date": myDate.getDate(), "time": myDate.getTime(), "seats": seats}
+                                    saveData.orders.registered[msgData.name][curHistory[msgData.name].curOrder].push(item)
+                                    console.log(2)
+                                    delete saveData.orders.pending[msgData.name][curHistory[msgData.name].curOrder]
+                                    userInstruction = "redirectConfirmedOrder"
+                                    console.log(3)
+                                    item["id"] = curHistory[msgData.name].curOrder
+                                    console.log(saveData.orders)
+                                }
+                                fs.writeFile('./saveFile.txt', JSON.stringify(saveData), (err) => {})
                                 break;
                             case "cancelOrder":
                                 break;
-                            //AAAAAAAAAAAAAAAAAA wie veränderst du specialCase? Du musst das auf serverInstruction und userInstruction umverändern oder so
                         }
+                        curHistory[msgData.name].userInstruction = msgData.userInstruction
                         break;
                     
                     case "miss":
@@ -101,7 +162,8 @@ wss.on('request', function (request) {                      //Dont base your log
                         break;
                 }
                 curHistory[msgData.name].msgHistory.push(msgData.msg)
-                curHistory[msgData.name].connection.send(`{"option": "answer", "msg": "${msgData.msg}"}`)
+                curHistory[msgData.name].connection.send(`{"option": "answer", "msg": "${msgData.msg}", "userInstruction": "${userInstruction}", "item": ${JSON.stringify(item)}}`)
+                console.log(`{"option": "answer", "msg": "${msgData.msg}", "userInstruction": "${userInstruction}", "item": ${item}}`)
                 break;
 
             case "reset":
