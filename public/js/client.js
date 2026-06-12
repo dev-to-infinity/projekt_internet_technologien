@@ -1,16 +1,18 @@
 var socket = new WebSocket('http://localhost:8081', 'chat')           //change localhost to your ip if you want it to work from another device, then type http://yourIP:8081
 
 const msger_chat = document.getElementById('msger-chat')
-const saveBtn = document.getElementById('saveBtn')
+const optionBtns = document.getElementsByClassName('msger-options-btn')
+const startMsg = "Welcome! To start, please choose a username that I can remember u by. Or remind me of who you are if we talked before!"
 
 socket.onopen = function () {
     const myMsgPrinter = new msgPrinter()
     const msgField = document.getElementById('msger-input')
     var openMsg = true
     var option = "userJoin"
-    var myName = "user"   
+    var myName = "user"
+    var optionsAllowed = false
 
-    myMsgPrinter.left("Welcome! To start, please choose a username that I can remember u by. Or remind me of who you are if we talked before!")
+    myMsgPrinter.left(startMsg)
 
     const form = document.getElementById("msger-inputarea")
     form.addEventListener('submit', function(event) {
@@ -25,6 +27,7 @@ socket.onopen = function () {
                     myName = inputValue
                     socket.send(`{"option": "userJoin", "name": "${inputValue}"}`)
                     option = "userMsg"
+                    optionsAllowed = true
                     break;
 
                 case "userMsg":
@@ -37,14 +40,30 @@ socket.onopen = function () {
         }
     })
 
+    const saveBtn = document.getElementById('saveBtn')
+    const resetBtn = document.getElementById('resetBtn')
+
     saveBtn.onclick = () => {
-        myMsgPrinter.right(myName, "Save")
-        socket.send(`{"option": "save"}`)
+        if(openMsg && optionsAllowed){
+            myMsgPrinter.right(myName, "Save")
+            openMsg = false
+            socket.send(`{"option": "save"}`)
+            alert("sent: save")
+        }
+    }
+
+    resetBtn.onclick = () => {
+        if(openMsg && optionsAllowed){
+            msger_chat.innerHTML = ""
+            myMsgPrinter.right(myName, "Reset")
+            openMsg = false
+            socket.send(`{"option": "reset"}`)
+            alert("sent: reset")
+        }
     }
 
     socket.onmessage = (msg) => {
         const msgData = JSON.parse(msg.data)
-        alert("json worked")
 
         switch (msgData.option) {
             case "userJoin":
@@ -54,7 +73,7 @@ socket.onopen = function () {
                     if (i % 2 == 0) {
                         myMsgPrinter.left(msgData.msgHistory[i])
                     }
-                    else { myMsgPrinter.right(myName, msgData.msgHistory[i])} 
+                    else {myMsgPrinter.right(myName, msgData.msgHistory[i])} 
                 }
                 break
 

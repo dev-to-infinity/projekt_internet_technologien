@@ -57,10 +57,8 @@ wss.on('request', function (request) {                      //Dont base your log
             case "userJoin":
                 name = msgData.name
                 if(name in saveData) {              //in looks for indices, not values!
-                    console.log("we are here")
-                    curHistory[name] = {"msgHitory": saveData[name].msgHistory, "msgPath": saveData[name].msgPath, "rotation": saveData[name].rotation, "userInstruction": saveData[name].userInstruction, "connection": connection}
+                    curHistory[name] = {"msgHistory": saveData[name].msgHistory, "msgPath": saveData[name].msgPath, "rotation": saveData[name].rotation, "userInstruction": saveData[name].userInstruction, "connection": connection}
                     connection.send(`{"option": "userJoin", "msgHistory": ${JSON.stringify(saveData[name].msgHistory)}}`)
-                    console.log("sent")
                 }
                 else {
                     curHistory[name] = {"msgHistory": [firstMsg, name], "msgPath": [], "rotation": 0, "userInstruction": "none", "connection": connection}
@@ -77,16 +75,15 @@ wss.on('request', function (request) {                      //Dont base your log
             
             case "userMsg":
                 curHistory["SalesBot"].connection.send(`{"option": "userMsg", "name": "${name}", "msg": "${msgData.msg}", "rotation": ${curHistory[name].rotation}, "userInstruction": "${curHistory[name].userInstruction}", "msgPath": ${JSON.stringify(curHistory[name].msgPath)}}`)
+                curHistory[name].msgHistory.push(msgData.msg)
                 //JSON.stringify() was used because of the problems an empty array causes in ${}, as it completely vanishes
                 break;
             
             case "botAnswer":
-                console.log("What was received: ", msgData)
                 switch(msgData.result){
                     case "hit":
                         curHistory[msgData.name].msgPath.push(msgData.nodeIndex)
                         curHistory[msgData.name].userInstruction = msgData.userInstruction    //AAAAAAAAAAAAAAAAAAAAAAAA verändern!
-                        console.log("what's in curHistory: ", curHistory[msgData.name].userInstruction)
                         switch(msgData.serverInstruction){
                             case "initPendingOrder":
                                 break;
@@ -108,6 +105,17 @@ wss.on('request', function (request) {                      //Dont base your log
                 break;
 
             case "reset":
+                curHistory[name] = {"msgHistory": [firstMsg, name], "msgPath": [], "rotation": 0, "userInstruction": "none", "connection": connection}
+                curHistory["SalesBot"].connection.send(`{"option": "firstUserMsg", "name": "${name}"}`)
+                var toBeSaved = Object.assign({}, curHistory[name])
+                delete toBeSaved['connection']
+                saveData[name] = toBeSaved
+                var msg = ""
+                var worked = true
+                fs.writeFile('./saveFile.txt', JSON.stringify(saveData), (err) => {
+                    worked = false
+                    msg = "Apologies, but the server could currently not save your chat status."
+                })
                 break;
             
             case "save":
@@ -115,12 +123,10 @@ wss.on('request', function (request) {                      //Dont base your log
                 delete toBeSaved['connection']
                 saveData[name] = toBeSaved
                 var msg = ""
-                console.log(saveData)
                 var worked = true
                 fs.writeFile('./saveFile.txt', JSON.stringify(saveData), (err) => {
                     worked = false
                     msg = "Apologies, but the server could currently not save your chat status."
-                    console.log(err)
                 })
                 if(worked) msg = "Chat saved successfully."
                 curHistory[name].connection.send(`{"option": "answer", "msg": "${msg}"}`)

@@ -11,9 +11,7 @@ const responder = (msg, msgPath, rotation, userInstruction) => {
     switch(userInstruction){
         case "none":
             for(var nodeIndex in curNode.nextNodes) for(var keywordIndex in curNode.nextNodes[nodeIndex].keywords){
-                console.log(curNode.nextNodes[nodeIndex].keywords[keywordIndex])
                 if(msg.includes(curNode.nextNodes[nodeIndex].keywords[keywordIndex])){
-                    console.log("what was returned by responder: ", {"result": "hit", "nodeIndex": nodeIndex, "msg": curNode.nextNodes[nodeIndex].response, "userInstruction": curNode.nextNodes[nodeIndex].userInstruction, "serverInstruction": curNode.nextNodes[nodeIndex].serverInstruction})
                     return {"result": "hit", "nodeIndex": nodeIndex, "msg": curNode.nextNodes[nodeIndex].response, "userInstruction": curNode.nextNodes[nodeIndex].userInstruction, "serverInstruction": curNode.nextNodes[nodeIndex].serverInstruction}
                 }    //which means if two words from wordList exist as a substring in msg only the first one matters
             } 
@@ -21,7 +19,6 @@ const responder = (msg, msgPath, rotation, userInstruction) => {
 
         case "expectNumber":
             var number = Number(msg)
-            console.log("received number: ", number)
             if(!isNaN(number)) return {"result": "hit","nodeIndex": 0, "msg": curNode.nextNodes[0].response, "userInstruction": curNode.nextNodes[0].userInstruction, "serverInstruction": curNode.nextNodes[0].serverInstruction, "value": number}
             break;
     }
@@ -60,7 +57,6 @@ class salesBot {
                         responseObj.name = msgData.name
                         responseObj.option = "botAnswer"
                         connection.send(JSON.stringify(responseObj))
-                        console.log("what was sent: ", JSON.stringify(responseObj))
                         break;
                     case "firstUserMsg":
                         connection.send(`{"option": "botAnswer", "result": "first", "name": "${msgData.name}", "msg": "${wordTree.response}"}`)
