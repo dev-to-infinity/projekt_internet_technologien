@@ -1,1 +1,0 @@
-{"flightsList":{"56":{"destination":"Moscow Airport","freeSeats":14,"costPerPerson":"600$"},"104":{"destination":"Istanbul Airport","freeSeats":12,"costPerPerson":"300$"},"309":{"destination":"Chișinău Airport","freeSeats":8,"costPerPerson":"20$"}},"orders":{"pending":{"bro":{}},"registered":{"bro":{"56":[{"date":12,"time":1781298683728,"seats":"2","id":"56"}]}}}}

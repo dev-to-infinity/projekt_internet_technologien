@@ -7,7 +7,6 @@ const responder = (msg, msgPath, rotation, userInstruction) => {
     var curNode = wordTree               //When JSON file is going to be used this is just gonna be the parsed file which is literally an instance
 
     for(var i in msgPath) curNode = curNode.nextNodes[msgPath[i]]
-    console.log("curnode: " + curNode)
 
     switch(userInstruction){
         case "expectNumber":
@@ -16,7 +15,7 @@ const responder = (msg, msgPath, rotation, userInstruction) => {
             break;
         default:
             for(var nodeIndex in curNode.nextNodes) for(var keywordIndex in curNode.nextNodes[nodeIndex].keywords){
-                if(msg.includes(curNode.nextNodes[nodeIndex].keywords[keywordIndex])){
+                if(msg.toLowerCase().includes(curNode.nextNodes[nodeIndex].keywords[keywordIndex])){
                     return {"result": "hit", "nodeIndex": nodeIndex, "msg": curNode.nextNodes[nodeIndex].response, "userInstruction": curNode.nextNodes[nodeIndex].userInstruction, "serverInstruction": curNode.nextNodes[nodeIndex].serverInstruction}
                 }    //which means if two words from wordList exist as a substring in msg only the first one matters
             } 

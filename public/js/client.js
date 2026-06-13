@@ -14,7 +14,7 @@ else if(url.includes("orders")) docName = "orders"
 socket.onopen = function () {
     const myMsgPrinter = new msgPrinter()
     const msgField = document.getElementById('msger-input')
-    var openMsg = false
+    var openMsg = true
     var option = "userJoin"
     var myName = "user"
     var optionsAllowed = false
@@ -85,17 +85,42 @@ socket.onopen = function () {
                     }
                     else {myMsgPrinter.right(myName, msgData.msgHistory[i])} 
                 }
+                openMsg = true
                 break
 
             case "answer":
                 myMsgPrinter.left(msgData.msg)
-                if(msgData.userInstruction == "reset"){
-                    setTimeout(() => {
-                        msger_chat.innerHTML = ""
+                switch(msgData.userInstruction){
+                    case "reset":
                         openMsg = false
-                        socket.send(`{"option": "reset"}`)
-                    }, (5000))
+                        setTimeout(() => {
+                            msger_chat.innerHTML = ""
+                            socket.send(`{"option": "reset"}`)
+                        }, 5000)
+                        break
+                    case "redirectConfirmedOrder":
+                        openMsg = false
+                        var item = msgData.item
+                        setTimeout(() => {
+                            msger_chat.innerHTML = ""
+                            socket.send(`{"option": "reset"}`)
+                            const myWindow = window.open('./details.html')
+                            myWindow.addEventListener('load', () => {
+                                var detailsDocument = myWindow.document
+                                detailsDocument.getElementById('details_about').innerHTML = `<div id="details_about_content"><h1>Here are the details:</h1></div>` //reset
+                                var myString = ""
+                                myString += `<p>Date of purchase: ${item.dateTime.day}.${item.dateTime.month}.${item.dateTime.year}, ${item.dateTime.hours.toString().padStart(2, '0')}:${item.dateTime.minutes.toString().padStart(2, '0')}</p>`
+                                myString += `<p>Flight-ID: ${item.id}</p>`
+                                myString += `<p>Amount of seats booked: ${item.seats}</p>`
+                                myString += `<p>Total cost: ${item.totalCost}$</p>`
+                                detailsDocument.getElementById('details_about_content').innerHTML += myString
+                            })
+                        }, 5000)
+                        break
+                    default:
+                        openMsg = true
                 }
+
                 break
             
             case "requestAnswer":
@@ -109,7 +134,7 @@ socket.onopen = function () {
                     for(var i in indices){
                         destinationList[i].innerHTML = `From: Montenegro Airport, To: ${item[indices[i]].destination}`
                         seatsList[i].innerHTML = `Free seats: ${item[indices[i]].freeSeats}`
-                        costList[i].innerHTML = `Cost per person: ${item[indices[i]].costPerPerson}`
+                        costList[i].innerHTML = `Cost per person: ${item[indices[i]].costPerPerson}$`
                     }
                 }
                 else{
@@ -117,7 +142,6 @@ socket.onopen = function () {
                 }
                 break
         }
-        openMsg = true
     }
 }
 

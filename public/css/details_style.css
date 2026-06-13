@@ -1,31 +1,36 @@
-#planes_about {
+#details_about {
     margin: 80px 40px;
+    height: 50vh;
     display: flex;
     justify-content: center;
 }
 
-#planes_about_content {
+#details_about_content {
     margin-top: 40px;
-    min-height: 10px;
-    width: 750%;
+    width: 100%;
+    height: 100%; 
     border-radius: 20px;
     overflow: hidden;
-    background-color: palegreen;
+    background-color: mediumblue;
     border: 3px solid navy;
-    color: black;
+    color: ivory;
     font-family: Arial, Helvetica, sans-serif;
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
 }
 
-#planes_about_content * {
+#details_about_content * {
     margin: 0;
     box-sizing: border-box;
     padding: 20px 50px;
     display: flex;
     flex-direction: column;
     gap: 4px;
-    flex: 1 1 400px;
-    font-size: 3ex;
+    flex: 1 1 100%;
     text-align: center;
+}
+
+p {
+    border: 1px solid black;
 }
