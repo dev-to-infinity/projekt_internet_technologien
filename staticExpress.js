@@ -12,7 +12,7 @@ var curHistory = {
 } //Because it should not automatically be saved, or when any user clicks save, but when the SPECIFIC user clicks save; null element for bot
 
 var saveData = {
-    "flightsList": {104: {"destination": "Istanbul Airport", "freeSeats": 12, "costPerPerson": "300"}, 309: {"destination": "Chișinău Airport", "freeSeats": 8, "costPerPerson": "20"}, 56: {"destination": "Moscow Airport", "freeSeats": 16, "costPerPerson": "600"}},
+    "flightsList": {104: {"destination": "Istanbul Airport", "freeSeats": 12, "costPerPerson": "300"}, 309: {"destination": "Chișinău Airport", "freeSeats": 8, "costPerPerson": "20"}, 562: {"destination": "Moscow Airport", "freeSeats": 16, "costPerPerson": "600"}},
     "orders": {
         "pending": {},
         "registered": {}
@@ -58,7 +58,7 @@ wss.on('request', function (request) {                      //Dont base your log
 
     connection.on('message', function (message) {
         var msgData = JSON.parse(message.utf8Data)
-        //console.log(msgData)
+        //console.log("received msg: " + message.utf8Data)
 
         switch(msgData.option) {
             case "userRequest":
@@ -66,12 +66,21 @@ wss.on('request', function (request) {                      //Dont base your log
                 if(msgData.requestItem == "flightsList"){
                     item = saveData.flightsList
                 } 
-                else item = saveData.orders
+                else{
+                    item = {"pending": {}, "registered": {}}
+                    if(name in saveData.orders.pending) item.pending = saveData.orders.pending[name]
+                    if(name in saveData.orders.registered) item.registered = saveData.orders.registered[name]
+                }
                 connection.send(`{"option": "requestAnswer", "item": ${JSON.stringify(item)}}`)
                 break
             case "userJoin":
                 name = msgData.name
-                if(name in saveData && !(name in ["flightsList", "orders"])) {              //in looks for indices, not values!
+                var forbiddenNames = ["flightsList", "orders"]
+                if(forbiddenNames.includes(name)){
+                    connection.send(`{"option": "answer", "msg": "This name is not allowed. Your connection to the server will now be terminated. Please reload your page."}`)
+                    connection.drop()
+                }
+                else if(name in saveData) {              //in looks for indices, not values!
                     curHistory[name] = Object.assign({"connection": connection}, saveData[name])
                     //console.log(curHistory[name])
                     connection.send(`{"option": "userJoin", "msgHistory": ${JSON.stringify(saveData[name].msgHistory)}}`)
@@ -129,7 +138,6 @@ wss.on('request', function (request) {                      //Dont base your log
                                     msgData.msg = "Unfortunately I cannot book this many seats for you. Your chat will be reset soon."
                                     delete saveData.orders.pending[msgData.name][curHistory[msgData.name].curOrder]
                                     delete saveData[name]
-                                    fs.writeFile('./saveFile.txt', JSON.stringify(saveData), (err) => {})
                                     userInstruction = "reset"      
                                 }
                                 else{
@@ -140,7 +148,7 @@ wss.on('request', function (request) {                      //Dont base your log
                                     var myDate = new Date()
                                     myDate.get
                                     var myDataObj = {"year": myDate.getFullYear(), "month": myDate.getMonth() + 1, "day": myDate.getDate(), "hours": myDate.getHours(), "minutes": myDate.getMinutes()}
-                                    item = {"dateTime": myDataObj, "id": curHistory[msgData.name].curOrder, "seats": seats, "totalCost": totalCost}
+                                    item = {"dateTime": myDataObj, "id": parseInt(curHistory[msgData.name].curOrder), "seats": parseInt(seats), "totalCost": totalCost}
                                     saveData.orders.registered[msgData.name][curHistory[msgData.name].curOrder].push(item)
                                     delete saveData.orders.pending[msgData.name][curHistory[msgData.name].curOrder]
                                     userInstruction = "redirectConfirmedOrder"
@@ -149,6 +157,22 @@ wss.on('request', function (request) {                      //Dont base your log
                                 fs.writeFile('./saveFile.txt', JSON.stringify(saveData), (err) => {})
                                 break;
                             case "cancelOrder":
+                                var idComplex = curHistory[msgData.name].msgHistory[curHistory[msgData.name].msgHistory.length - 1]
+                                var flightID = idComplex.slice(0, 3)
+                                var orderID = idComplex.slice(3)
+                                if(flightID in saveData.orders.registered[msgData.name] && orderID in saveData.orders.registered[msgData.name][flightID]){
+                                    item = saveData.orders.registered[msgData.name][flightID][orderID]
+                                    saveData.flightsList[flightID].freeSeats += item.seats
+                                    saveData.orders.registered[msgData.name][flightID].splice(orderID, 1)
+                                    fs.writeFile('./saveFile.txt', JSON.stringify(saveData), (err) => {})
+                                    msgData.msg = "Rest now child, we canceled the order for you. You will be redirected in five seconds, just hold still yeah?"
+                                    userInstruction = "redirectCanceledOrder"
+                                
+                                }
+                                else {
+                                    msgData.msg = "Unfortunately there is no order with that ID. Your chat will be reset soon."
+                                    userInstruction = "reset"  
+                                }
                                 break;
                         }
                         curHistory[msgData.name].userInstruction = msgData.userInstruction
@@ -166,7 +190,7 @@ wss.on('request', function (request) {                      //Dont base your log
                 break;
 
             case "reset":
-                curHistory[name] = {"msgHistory": [firstMsg, name], "msgPath": [], "rotation": 0, "userInstruction": "none", "connection": curHistory[name].connection, "curOrder": false}
+                curHistory[name] = {"msgHistory": [firstMsg, name], "msgPath": [], "rotation": 0, "userInstruction": "none", "connection": connection, "curOrder": false}
                 curHistory["SalesBot"].connection.send(`{"option": "firstUserMsg", "name": "${name}"}`)
                 delete saveData[name]
                 fs.writeFile('./saveFile.txt', JSON.stringify(saveData), (err) => {})

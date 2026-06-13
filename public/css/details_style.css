@@ -1,6 +1,6 @@
 #details_about {
     margin: 80px 40px;
-    height: 50vh;
+    min-height: 50vh;
     display: flex;
     justify-content: center;
 }

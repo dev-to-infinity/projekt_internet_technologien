@@ -6,6 +6,8 @@
         <title>Home | EasyAir</title>
         <link rel="stylesheet" href="../css/orders_style.css">
         <link rel="stylesheet" href="../css/body_&_header.css">
+        <link rel="stylesheet" href="../css/chat_style.css">
+        <script src="./js/jquery.js"></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
@@ -23,5 +25,36 @@
                 <p id="montenegro_airport">Montenegro Airport</p>
             </div>
         </header>
+        <div id="orders">
+            <h1>Peniding Orders:</h1>
+            <ul id="pending_orders_ul"></ul>
+            <h1>Registered Orders:</h1>
+            <ul id="registered_orders_ul"></ul>
+        </div>
+
+        <div id="chat_container">                    <!-- This is a template from the second given website -->
+            <section class="msger">
+            <div class="msger-header">
+                <div class="msger-header-title">
+                <i class="fas fa-comment-alt"></i> SalesBot
+                </div>
+                <div class="msger-header-options">    <!-- Explicitly giving the opportunity for own options is so cool holy -->
+                <span><i class="fas fa-cog"></i>
+                <button type="button" class="msger-options-btn" id="resetBtn">reset</button>
+                <button type="button" class="msger-options-btn" id="saveBtn">save</button>
+                </span>
+                </div>
+            </div>
+
+            <main id="msger-chat"><!-- Here go all the messages --></main>
+
+            <form id="msger-inputarea">
+                <input type="text" id="msger-input" placeholder="Enter your message...">
+                <button type="submit" id="msger-send-btn">Send</button>
+            </form>
+            <script src="../js/client.js"></script>
+        </section>
+        </div>
+
     </body>
 </html>

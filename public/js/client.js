@@ -4,12 +4,11 @@ const msger_chat = document.getElementById('msger-chat')
 const optionBtns = document.getElementsByClassName('msger-options-btn')
 const startMsg = "Welcome! To start, please choose a username that I can remember u by. Or remind me of who you are if we talked before!"
 const url = document.URL
+var pendingOrdersUl
+var registeredOrdersUl
 var docName = ""
 if(url.includes("flights")) docName = "flights"
 else if(url.includes("orders")) docName = "orders"
-
-
-//const myWindow = window.open('./planes.html')
 
 socket.onopen = function () {
     const myMsgPrinter = new msgPrinter()
@@ -21,10 +20,11 @@ socket.onopen = function () {
 
     myMsgPrinter.left(startMsg)
 
-    var requestItem
-    if(docName == "flights") requestItem = "flightsList"
-    else requestItem = "orders"
-    socket.send(`{"option": "userRequest", "requestItem": "${requestItem}"}`)
+    if(docName == "flights") socket.send(`{"option": "userRequest", "requestItem": "flightsList"}`)
+    else {
+        pendingOrdersUl = document.getElementById('pending_orders_ul')
+        registeredOrdersUl = document.getElementById('registered_orders_ul')
+    }
 
     const form = document.getElementById("msger-inputarea")
     form.addEventListener('submit', function(event) {
@@ -85,7 +85,8 @@ socket.onopen = function () {
                     }
                     else {myMsgPrinter.right(myName, msgData.msgHistory[i])} 
                 }
-                openMsg = true
+                if(docName == "orders") socket.send(`{"option": "userRequest", "requestItem": "orders"}`)
+                else openMsg = true
                 break
 
             case "answer":
@@ -113,12 +114,35 @@ socket.onopen = function () {
                                 myString += `<p>Flight-ID: ${item.id}</p>`
                                 myString += `<p>Amount of seats booked: ${item.seats}</p>`
                                 myString += `<p>Total cost: ${item.totalCost}$</p>`
+                                myString += `<h1>Thank you!</h1>`
                                 detailsDocument.getElementById('details_about_content').innerHTML += myString
                             })
                         }, 5000)
                         break
+                        case "redirectCanceledOrder":
+                            openMsg = false
+                            var item = msgData.item
+                            setTimeout(() => {
+                                msger_chat.innerHTML = ""
+                                socket.send(`{"option": "reset"}`)
+                                const myWindow = window.open('./details.html')
+                                myWindow.addEventListener('load', () => {
+                                    var detailsDocument = myWindow.document
+                                    detailsDocument.getElementById('details_about').innerHTML = `<div id="details_about_content"><h1>The following order was cancelled:</h1></div>` //reset
+                                    var myString = ""
+                                    myString += `<p>Date of purchase: ${item.dateTime.day}.${item.dateTime.month}.${item.dateTime.year}, ${item.dateTime.hours.toString().padStart(2, '0')}:${item.dateTime.minutes.toString().padStart(2, '0')}</p>`
+                                    myString += `<p>Flight-ID: ${item.id}</p>`
+                                    myString += `<p>Amount of seats: ${item.seats}</p>`
+                                    myString += `<p>Total cost (Will be returned to you ASAP): ${item.totalCost}$</p>`
+                                    myString += `<h1>See you soon.</h1>`
+                                    detailsDocument.getElementById('details_about_content').innerHTML += myString
+                                })
+                            }, 5000)
+                        break
                     default:
-                        openMsg = true
+                        if(docName == "orders") socket.send(`{"option": "userRequest", "requestItem": "orders"}`)
+                        else openMsg = true
+                    
                 }
 
                 break
@@ -130,15 +154,34 @@ socket.onopen = function () {
                     var seatsList = document.getElementsByClassName('seats')
                     var costList = document.getElementsByClassName('cost')
 
-                    var indices = [104, 309, 56]
+                    var indices = [104, 309, 562]
                     for(var i in indices){
                         destinationList[i].innerHTML = `From: Montenegro Airport, To: ${item[indices[i]].destination}`
                         seatsList[i].innerHTML = `Free seats: ${item[indices[i]].freeSeats}`
                         costList[i].innerHTML = `Cost per person: ${item[indices[i]].costPerPerson}$`
                     }
                 }
-                else{
+                else {
+                    pendingOrdersUl.innerHTML = ""
+                    registeredOrdersUl.innerHTML = ""
+                    for(i in item.pending){
+                        pendingOrdersUl.innerHTML += `<li>Flight ID: ${i}, Seats: ${item.pending[i]}</li>`
+                    }
 
+                    var orderID = 0
+                    for(i in item.registered){
+                        for(j in item.registered[i]){
+                            var myString = ""
+                            myString += `<li>Order-ID: ${i}${orderID}; `
+                            orderID++
+                            myString += `Date of purchase: ${item.registered[i][j].dateTime.day}.${item.registered[i][j].dateTime.month}.${item.registered[i][j].dateTime.year}, ${item.registered[i][j].dateTime.hours.toString().padStart(2, '0')}:${item.registered[i][j].dateTime.minutes.toString().padStart(2, '0')};   `
+                            myString += `Flight-ID: ${item.registered[i][j].id};   `
+                            myString += `Amount of seats booked: ${item.registered[i][j].seats};   `
+                            myString += `Total cost: ${item.registered[i][j].totalCost}$</li>`
+                            registeredOrdersUl.innerHTML += myString
+                        }
+                    }
+                    openMsg = true
                 }
                 break
         }
