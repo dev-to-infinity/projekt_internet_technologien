@@ -173,7 +173,9 @@ wss.on('request', function (request) {                      //Dont base your log
                                     msgData.msg = "Unfortunately there is no order with that ID. Your chat will be reset soon."
                                     userInstruction = "reset"  
                                 }
-                                break;
+                                break
+                            case "reset":
+                                userInstruction = "reset"
                         }
                         curHistory[msgData.name].userInstruction = msgData.userInstruction
                         break;

@@ -87,6 +87,7 @@ socket.onopen = function () {
                 }
                 if(docName == "orders") socket.send(`{"option": "userRequest", "requestItem": "orders"}`)
                 else openMsg = true
+                alert(0)
                 break
 
             case "answer":
@@ -144,7 +145,6 @@ socket.onopen = function () {
                         else openMsg = true
                     
                 }
-
                 break
             
             case "requestAnswer":
