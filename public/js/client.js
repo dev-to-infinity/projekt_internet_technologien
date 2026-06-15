@@ -172,7 +172,7 @@ socket.onopen = function () {
                     for(i in item.registered){
                         for(j in item.registered[i]){
                             var myString = ""
-                            myString += `<li>Order-ID: ${i}${orderID}; `
+                            myString += `<li>Order-ID: ${i}${j}; `
                             orderID++
                             myString += `Date of purchase: ${item.registered[i][j].dateTime.day}.${item.registered[i][j].dateTime.month}.${item.registered[i][j].dateTime.year}, ${item.registered[i][j].dateTime.hours.toString().padStart(2, '0')}:${item.registered[i][j].dateTime.minutes.toString().padStart(2, '0')};   `
                             myString += `Flight-ID: ${item.registered[i][j].id};   `
